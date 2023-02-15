@@ -12,10 +12,10 @@ cpdef convolve(np.ndarray x, np.ndarray h):
     for n in range(L):
         kmin = max(0, n - (M - 1))
         kmax = min(N - 1, n)
-        x_part = x[kmin:kmax+1]
-        h_part = h[n-kmax:n-kmin+1][::-1]
+        x_part = <np.ndarray> np.PyArray_DATA(x) + x.strides[0] * kmin
+        h_part = <np.ndarray> np.PyArray_DATA(h) + h.strides[0] * (n - kmax)
         pad_length = max(0, len(x_part) - len(h_part))
         h_part = np.pad(h_part, (0, pad_length), 'constant')
-        y[n] = np.sum(x_part * h_part)
+        y[n] = np.sum(x_part[:len(h_part)] * h_part)
 
     return y
